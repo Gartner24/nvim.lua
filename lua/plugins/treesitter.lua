@@ -10,4 +10,8 @@ return {
     },
     "nvim-treesitter/nvim-treesitter-context",
     "nvim-treesitter/playground",
+    ensure_installed = {
+        "lua","javascript","typescript","html","css","python","astro",
+        "markdown","markdown_inline",
+    },
 }

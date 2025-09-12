@@ -19,4 +19,16 @@ return {
 		end
 
 	},
+    {
+        "MeanderingProgrammer/render-markdown.nvim",
+        ft = { "markdown", "rmd", "mdx" },
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            "nvim-tree/nvim-web-devicons", -- we already use devicons
+      },
+      opts = {
+          completions = { lsp = { enabled = true } },
+      },
+    },
+
 }

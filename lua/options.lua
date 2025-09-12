@@ -25,3 +25,20 @@ vim.g.clipboard = {
 
 -- Trim trailing whitespace on save
 vim.api.nvim_create_autocmd("BufWritePre", { pattern = "*", command = [[%s/\s\+$//e]] })
+
+-- Faster CursorHold so popups feel snappy
+vim.o.updatetime = 250
+
+-- Nice diagnostic UI + sane defaults
+vim.diagnostic.config({
+  virtual_text = false,
+
+  signs = true,
+  update_in_insert = false,
+  float = {
+    border = "rounded",
+    source = "if_many",
+    focusable = false,
+  },
+})
+

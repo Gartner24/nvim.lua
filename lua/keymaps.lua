@@ -1,5 +1,20 @@
 local map = vim.keymap.set
 
+-- comment line
+vim.keymap.set("n", "gc", function()
+  local line = vim.api.nvim_get_current_line()
+  local indent, content = line:match("^(%s*)(.*)$")
+  local comment_char = "#"
+
+  if content:sub(1, #comment_char) == comment_char then
+    -- Uncomment
+    vim.api.nvim_set_current_line(indent .. content:sub(#comment_char + 1))
+  else
+    -- Comment
+    vim.api.nvim_set_current_line(indent .. comment_char .. content)
+  end
+end, { noremap = true, silent = true })
+
 -- Toggle relative numbers
 map("n", "<leader>n", function()
   vim.opt.relativenumber = not vim.opt.relativenumber:get()
@@ -43,3 +58,8 @@ map("n", "<leader>H", function() hp():list():clear() end)-- Zen Mode
 
 -- Zen Mode
 map("n", "<leader>z", ":ZenMode<CR>", { silent = true })
+
+-- Open Diagnostic
+vim.keymap.set("n", "gl", function()
+  vim.diagnostic.open_float(nil, { focus = false, border = "rounded", source = "if_many" })
+end)
