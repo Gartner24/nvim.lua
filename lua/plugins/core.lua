@@ -13,5 +13,6 @@ return {
     "folke/zen-mode.nvim",
     "mbbill/undotree",
     "laytan/cloak.nvim",
+    { 'wakatime/vim-wakatime', lazy = false },
     "Eandrju/cellular-automaton.nvim",
 }

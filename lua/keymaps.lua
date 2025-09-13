@@ -47,7 +47,6 @@ map("n", "<leader>h", function() hp().ui:toggle_quick_menu(hp():list()) end)
 
 -- jump to slots 1..4
 map("n", "<A-1>", function() hp():list():select(1) end)
-
 map("n", "<A-2>", function() hp():list():select(2) end)
 map("n", "<A-3>", function() hp():list():select(3) end)
 map("n", "<A-4>", function() hp():list():select(4) end)
@@ -63,3 +62,14 @@ map("n", "<leader>z", ":ZenMode<CR>", { silent = true })
 vim.keymap.set("n", "gl", function()
   vim.diagnostic.open_float(nil, { focus = false, border = "rounded", source = "if_many" })
 end)
+
+-- Open image
+vim.keymap.set("n", "<leader>ip", function()
+  require("utils.preview").preview_current_if_image()
+end, { desc = "Preview current image (chafa)" })
+
+
+-- prev and next buffer files
+vim.keymap.set("n", "<Tab>", "<cmd>bnext<CR>", { silent = true })
+vim.keymap.set("n", "<S-Tab>", "<cmd>bprevious<CR>", { silent = true })
+vim.keymap.set("n", "<Tab>", "<C-^>", { silent = true })
