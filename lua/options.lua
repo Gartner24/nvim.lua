@@ -20,6 +20,7 @@ vim.opt.termguicolors = true
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.signcolumn = "yes"
+vim.cmd.colorscheme("habamax")
 
 -- Indentation
 vim.opt.tabstop = 4
@@ -27,15 +28,25 @@ vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.softtabstop = 4
 
--- Clipboard: win32yank only in WSL; on native Linux use default (xclip/xsel/osc52)
-vim.opt.clipboard = "unnamedplus"
-if require("utils.env").is_wsl() then
+-- Clipboard setup per environment:
+--   WSL           → win32yank bridges to Windows clipboard
+--   Arch/Ubuntu   → unnamedplus uses wl-clipboard / xclip / xsel natively
+--   VPS/SSH       → unnamed register only; OSC52 (osc52.lua) handles export to local
+local env = require("utils.env")
+if env.is_wsl() then
 	vim.g.clipboard = {
 		name = "win32yank-wsl",
 		copy = { ["+"] = "win32yank.exe -i --crlf", ["*"] = "win32yank.exe -i --crlf" },
 		paste = { ["+"] = "win32yank.exe -o --lf", ["*"] = "win32yank.exe -o --lf" },
 		cache_enabled = 0,
 	}
+	vim.opt.clipboard = "unnamedplus"
+elseif env.has_clipboard_tool() then
+	-- Native Linux with a display server (Wayland / X11)
+	vim.opt.clipboard = "unnamedplus"
+else
+	-- Headless VPS / pure SSH: no clipboard tool; OSC52 autocmd (osc52.lua) exports yanks
+	vim.opt.clipboard = "unnamed"
 end
 
 -- Trim trailing whitespace on save
