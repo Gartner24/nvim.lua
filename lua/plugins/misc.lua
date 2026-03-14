@@ -6,11 +6,11 @@ return {
 			})
 		end
 	},
-	"mbbill/undotree",
 	-- Indent guides: vertical lines at each indent level
 	{
 		"lukas-reineke/indent-blankline.nvim",
 		main = "ibl",
+		event = "BufReadPost",
 		config = function()
 			require("ibl").setup({
 				indent = { char = "│" },

@@ -6,6 +6,7 @@ return {
                     "lua", "javascript", "typescript", "html", "css",
                     "python", "astro", "templ", "markdown", "markdown_inline",
                 },
+                sync_install = false,
                 highlight = { enable = true },
                 indent = { enable = true },
             })

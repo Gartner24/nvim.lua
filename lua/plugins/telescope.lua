@@ -2,6 +2,7 @@ return {
     "nvim-telescope/telescope.nvim",
     version = "0.1.6", -- stable: master has mouse_click breakage; 0.1.7+ has path_expand/ft_to_lang issues
     dependencies = { "nvim-lua/plenary.nvim" },
+    keys = { { "<C-p>", "<cmd>lua require('telescope.builtin').find_files()<cr>", desc = "Find files" }, { "<C-f>", "<cmd>lua require('telescope.builtin').live_grep()<cr>", desc = "Live grep" } },
     config = function()
         local telescope = require("telescope")
         local actions = require("telescope.actions")

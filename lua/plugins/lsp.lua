@@ -1,6 +1,7 @@
 return {
 	"VonHeikemen/lsp-zero.nvim",
 	branch = "v3.x",
+	event = "BufEnter",
 	dependencies = {
 		"neovim/nvim-lspconfig",
 
@@ -48,7 +49,7 @@ return {
 					elseif luasnip.expand_or_jumpable() then
 						luasnip.expand_or_jump()
 					else
-						cmp.complete()
+						fallback() -- insert tab when no completion/snippet
 					end
 				end, { "i", "s" }),
 				["<S-Tab>"] = cmp.mapping(function(fallback)
@@ -60,7 +61,8 @@ return {
 						fallback()
 					end
 				end, { "i", "s" }),
-				["<C-@>"] = cmp.mapping.complete(),
+				["<C-Space>"] = cmp.mapping.complete(),
+				["<C-@>"] = cmp.mapping.complete(), -- fallback (same as Ctrl+Space when terminal sends NUL)
 			}),
 			sources = {
 				{ name = "nvim_lsp" },
@@ -71,6 +73,20 @@ return {
 				{ name = "nvim_lua" },
 			},
 		})
+
+		-- Normal mode: Ctrl+Space → insert mode + open completion
+		vim.keymap.set("n", "<C-Space>", function()
+			vim.api.nvim_feedkeys("i", "n", false)
+			vim.schedule(function()
+				require("cmp").complete()
+			end)
+		end, { desc = "Insert and complete" })
+		vim.keymap.set("n", "<C-@>", function()
+			vim.api.nvim_feedkeys("i", "n", false)
+			vim.schedule(function()
+				require("cmp").complete()
+			end)
+		end, { desc = "Insert and complete" })
 
 		cmp.setup.cmdline("/", {
 			sources = { { name = "buffer" } },
