@@ -52,7 +52,10 @@ return {
             end
 
 
-            -- Run inside the preview window, ensure the preview buffer is current & unmodified
+            -- Skip if buffer is already a terminal (Telescope reuses buffers when scrolling fast)
+            if vim.bo[bufnr].buftype == "terminal" then
+                return -- leave previous image visible, avoid "Terminal already connected" error
+            end
             vim.api.nvim_win_call(winid, function()
                 if vim.api.nvim_get_current_buf() ~= bufnr then
                     vim.api.nvim_win_set_buf(0, bufnr)
@@ -61,8 +64,10 @@ return {
                 vim.bo[bufnr].readonly = false
                 vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, {})
                 vim.bo[bufnr].modified = false
-                vim.fn.termopen(cmd)  -- ok now: empty + unmodified
-                -- stay in normal mode to avoid flicker
+                local ok = pcall(vim.fn.termopen, cmd)
+                if not ok then
+                    builtin_maker(filepath, bufnr, opts)
+                end
             end)
         end
 
