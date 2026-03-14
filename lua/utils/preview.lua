@@ -7,6 +7,44 @@ local function is_image(p)
         or p:match("%.webp$") or p:match("%.bmp$") or p:match("%.svg$")
 end
 
+--- Build cmd for viu or chafa. Used by preview_image and Telescope.
+---@param path string
+---@param opts? { w?: number, h?: number, fast?: boolean }  w/h for size; fast=true uses rgb+work 6
+function M.image_cmd(path, opts)
+    opts = opts or {}
+    local has_viu = vim.fn.executable("viu") == 1
+    local has_chafa = vim.fn.executable("chafa") == 1
+    if has_viu then
+        local args = { "viu", "-b", "-t" }  -- -t: preserve transparency
+        if opts.w and opts.h then
+            table.insert(args, "-w")
+            table.insert(args, tostring(opts.w))
+            table.insert(args, "-h")
+            table.insert(args, tostring(opts.h))
+        end
+        table.insert(args, path)
+        return args
+    end
+    if has_chafa then
+        local args = { "chafa", "-f", "symbols" }
+        if opts.w and opts.h then
+            table.insert(args, "-s")
+            table.insert(args, string.format("%dx%d", opts.w, opts.h))
+        end
+        table.insert(args, "--symbols")
+        table.insert(args, "block")
+        table.insert(args, "--dither")
+        table.insert(args, "diffusion")
+        table.insert(args, "--work")
+        table.insert(args, opts.fast and "6" or "9")
+        table.insert(args, "--color-space")
+        table.insert(args, opts.fast and "rgb" or "din99d")
+        table.insert(args, path)
+        return args
+    end
+    return nil
+end
+
 -- Open a centered, floating terminal that runs the renderer
 local function open_float(w_ratio, h_ratio)
     local cols, lines = vim.o.columns, vim.o.lines
@@ -14,7 +52,6 @@ local function open_float(w_ratio, h_ratio)
     local H = math.max(10, math.floor(lines * (h_ratio or 0.92)))
 
     local buf = vim.api.nvim_create_buf(false, true)
-    vim.bo[buf].modifiable = false
     vim.bo[buf].bufhidden = "wipe"
 
     local win = vim.api.nvim_open_win(buf, true, {
@@ -49,21 +86,10 @@ function M.preview_image(path, opts)
 
     local buf, _, W, H = open_float((opts and opts.w_scale) or 0.92, (opts and opts.h_scale) or 0.92)
 
-    local has_viu = vim.fn.executable("viu") == 1
-    local has_chafa = vim.fn.executable("chafa") == 1
-    if not has_viu and not has_chafa then
+    local cmd = M.image_cmd(path, { w = W - 2, h = H - 2 })
+    if not cmd then
         vim.api.nvim_buf_set_lines(buf, 0, -1, false, { "No renderer found. Install `viu` or `chafa`." })
         return
-    end
-
-    -- Prefer `viu` (noticeably faster), fallback to `chafa`
-    local cmd
-    if has_viu then
-        -- -b: best fit; -w/-h in cells; --static avoids animation overhead
-        cmd = { "viu", "-b", "--static", "-w", tostring(W - 2), "-h", tostring(H - 2), path }
-    else
-        -- chafa: limit size and speed up rendering a bit
-        cmd = { "chafa", "--animate", "off", "--color-space", "rgb", "-s", string.format("%dx%d", W - 2, H - 2), path }
     end
     -- Use small scrollback to avoid slow terminal buffers
     vim.bo[buf].scrollback = 100

@@ -10,7 +10,7 @@ return {
         vim.g.vimtex_compiler_latexmk = {
             options = { "-pdf", "-interaction=nonstopmode", "-synctex=1" },
         }
-        vim.g.vimtex_view_general_viewer = [[/mnt/c/Users/santi/AppData/Local/SumatraPDF/SumatraPDF.exe]]
+        vim.g.vimtex_view_general_viewer = [[/usr/bin/okular]]
         vim.g.vimtex_view_general_options = [[-reuse-instance -forward-search @tex @line @pdf]]
   end,
 }

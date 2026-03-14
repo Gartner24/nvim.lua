@@ -1,6 +1,6 @@
 return {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.5",
+    version = "0.1.6", -- stable: master has mouse_click breakage; 0.1.7+ has path_expand/ft_to_lang issues
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
         local telescope = require("telescope")
@@ -37,13 +37,13 @@ return {
         local function image_previewer_maker(filepath, bufnr, opts)
             filepath = vim.fn.expand(filepath)
 
-            if not is_image(filepath) or (vim.fn.executable("viu") ~= 1 and vim.fn.executable("chafa") ~= 1) then
+            if not is_image(filepath) then
                 return builtin_maker(filepath, bufnr, opts)
             end
-
-            local cmd = (vim.fn.executable("viu") == 1)
-                and { "viu", "-b", "--static", filepath }
-                or  { "chafa", "--animate", "off", "--color-space", "rgb", filepath }
+            local cmd = require("utils.preview").image_cmd(filepath, { fast = true })
+            if not cmd then
+                return builtin_maker(filepath, bufnr, opts)
+            end
 
             local winid = opts and opts.winid
             if not (winid and vim.api.nvim_win_is_valid(winid)) then
@@ -69,6 +69,7 @@ return {
             defaults = {
                 file_ignore_patterns = { "venv", "env", "__pycache__", "%.pyc", "node_modules", "dist", "build" },
                 buffer_previewer_maker = image_previewer_maker,
+                preview = { treesitter = false }, -- disable: avoids ft_to_lang nil with nvim-treesitter main (gh#3487)
             },
             pickers = {
                 find_files = {
